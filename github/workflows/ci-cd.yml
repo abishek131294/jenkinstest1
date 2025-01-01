@@ -21,12 +21,12 @@ jobs:
     - name: Build WAR
       run: ./gradlew build  # or ./mvnw package for Maven
 
-    - name: Copy WAR to Windows Server
-      uses: atlassian/ssh-run@v2
+    - name: Copy WAR to Server using SFTP (port 20)
+      uses: appleboy/sftp-action@v0.1.0
       with:
         host: "103.186.40.7"
+        port: 20
         username: "Abishek"
         password: ${{ secrets.SFTP_PASS }}
-        script: |
-          mkdir -p C:\webapps
-          copy build/libs/*.war C:\webapps\
+        source: "build/libs/*.war"
+        target: "/webapps/"

@@ -1,0 +1,49 @@
+name: Build and Deploy WAR to SFTP
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use Ubuntu runner
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up Java environment
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'  # Change if needed
+
+      # Set up Maven
+      - name: Set up Maven
+        uses: s4u/setup-maven@v1
+        with:
+          maven-version: '3.9.9'  # Change Maven version if needed
+
+      # Build the WAR file with Maven
+      - name: Build WAR file
+        run: mvn clean install -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
+
+      # Upload WAR file to SFTP server
+      - name: Upload WAR to SFTP
+        uses: appleboy/ftp-action@v1.0.0
+        with:
+          host: ${{ secrets.SFTP_HOST }}  # Use GitHub secrets for security
+          username: ${{ secrets.SFTP_USER }}
+          password: ${{ secrets.SFTP_PASS }}
+          port: 20
+          remote-dir: /webapps
+          local-dir: target
+          file-pattern: "*.war"  # Only upload WAR files
+
+    # Secrets setup
+    env:
+      SFTP_HOST: 103.186.40.7
+      SFTP_USER: Abishek
+      SFTP_PASS: Abi@)(*&^%$#
